@@ -1,0 +1,20 @@
+# 서버
+fastapi==0.120.0
+uvicorn[standard]==0.38.0
+
+# RAG 엔진
+langchain-community==0.4.1
+langchain-core==1.1.2
+chromadb==1.3.5
+
+# 임베딩
+sentence-transformers==3.4.1
+
+# LLM
+openai==2.8.1
+
+# 유틸
+python-dotenv==1.1.1
+
+# DB
+huggingface-hub==0.35.3
