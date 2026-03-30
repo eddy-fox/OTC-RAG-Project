@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>의약품 복용 안내</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:     #2a7a4b;
+      --green-lt:  #e8f5ee;
+      --green-mid: #c5e5d2;
+      --gray-50:   #f8f9fa;
+      --gray-100:  #f0f2f0;
+      --gray-300:  #d0d5cf;
+      --gray-500:  #7a8c7a;
+      --gray-700:  #3a4a3a;
+      --gray-900:  #1a241a;
+      --red-lt:    #fdf0f0;
+      --red:       #c0392b;
+      --radius:    14px;
+      --shadow:    0 2px 16px rgba(0,0,0,0.07);
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #f4f7f4;
+      color: var(--gray-900);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── 헤더 ── */
+    header {
+      background: #fff;
+      border-bottom: 1px solid var(--gray-100);
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: var(--green);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .logo-text { font-size: 17px; font-weight: 600; color: var(--gray-900); }
+    .logo-sub  { font-size: 12px; color: var(--gray-500); margin-left: 2px; }
+
+    /* ── 메인 ── */
+    main {
+      flex: 1;
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 40px 20px 120px;
+    }
+
+    /* ── 안내 카드 ── */
+    .intro-card {
+      background: var(--green-lt);
+      border: 1px solid var(--green-mid);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      margin-bottom: 28px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #1e4d33;
+    }
+    .intro-card strong { font-weight: 600; }
+
+    /* ── 입력 영역 ── */
+    .input-wrap {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      margin-bottom: 24px;
+    }
+    textarea {
+      flex: 1;
+      border: 1.5px solid var(--gray-300);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 15px;
+      color: var(--gray-900);
+      resize: none;
+      height: 52px;
+      line-height: 1.5;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    textarea:focus { border-color: var(--green); }
+    textarea::placeholder { color: var(--gray-500); }
+    #sendBtn {
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 0 22px;
+      height: 52px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Noto Sans KR', sans-serif;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+    #sendBtn:hover  { background: #226040; }
+    #sendBtn:active { transform: scale(0.97); }
+    #sendBtn:disabled { background: var(--gray-300); cursor: not-allowed; }
+
+    /* ── 대화 영역 ── */
+    #chatArea { display: flex; flex-direction: column; gap: 20px; }
+
+    /* ── 말풍선 공통 ── */
+    .bubble-wrap { display: flex; flex-direction: column; gap: 6px; }
+    .bubble-label { font-size: 11px; font-weight: 500; color: var(--gray-500); padding: 0 4px; }
+
+    .bubble-user {
+      align-self: flex-end;
+      background: var(--green);
+      color: #fff;
+      border-radius: 18px 18px 4px 18px;
+      padding: 12px 18px;
+      font-size: 15px;
+      max-width: 80%;
+      line-height: 1.6;
+    }
+
+    .bubble-system {
+      align-self: flex-start;
+      background: #fff;
+      border: 1px solid var(--gray-100);
+      border-radius: 4px 18px 18px 18px;
+      padding: 16px 20px;
+      font-size: 14px;
+      max-width: 90%;
+      line-height: 1.7;
+      box-shadow: var(--shadow);
+    }
+
+    /* ── 후보 버튼 ── */
+    .cand-wrap { display: flex; flex-direction: column; gap: 8px; }
+    .cand-label {
+      font-size: 13px;
+      color: var(--gray-700);
+      font-weight: 500;
+    }
+    .cand-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .cand-btn {
+      background: #fff;
+      border: 1.5px solid var(--green-mid);
+      color: var(--green);
+      border-radius: 99px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .cand-btn:hover  { background: var(--green-lt); border-color: var(--green); }
+    .cand-btn.selected { background: var(--green); color: #fff; border-color: var(--green); }
+
+    /* ── 답변 카드 ── */
+    .answer-card { display: flex; flex-direction: column; gap: 12px; }
+    .answer-tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 99px;
+      margin-bottom: 2px;
+    }
+    .tag-caution { background: #fff4e5; color: #b36200; }
+    .tag-avoid   { background: var(--red-lt); color: var(--red); }
+    .tag-ok      { background: var(--green-lt); color: var(--green); }
+    .tag-default { background: var(--gray-100); color: var(--gray-700); }
+
+    .answer-section { display: flex; flex-direction: column; gap: 4px; }
+    .answer-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gray-500);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .answer-section-body {
+      font-size: 14px;
+      line-height: 1.75;
+      color: var(--gray-900);
+    }
+    .answer-cite {
+      background: var(--gray-50);
+      border-left: 3px solid var(--green);
+      border-radius: 0 8px 8px 0;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--gray-700);
+      line-height: 1.65;
+    }
+
+    /* ── 로딩 ── */
+    .loading {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 20px;
+      background: #fff;
+      border-radius: 4px 18px 18px 18px;
+      border: 1px solid var(--gray-100);
+      box-shadow: var(--shadow);
+      align-self: flex-start;
+      font-size: 13px;
+      color: var(--gray-500);
+    }
+    .dots { display: flex; gap: 4px; }
+    .dots span {
+      width: 6px; height: 6px;
+      background: var(--gray-300);
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+    .dots span:nth-child(2) { animation-delay: 0.2s; }
+    .dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); background: var(--gray-300); }
+      40%            { transform: translateY(-5px); background: var(--green); }
+    }
+
+    /* ── 에러 ── */
+    .bubble-error {
+      align-self: flex-start;
+      background: var(--red-lt);
+      border: 1px solid #f5c6c6;
+      color: var(--red);
+      border-radius: 4px 18px 18px 18px;
+      padding: 12px 18px;
+      font-size: 13px;
+      max-width: 80%;
+    }
+
+    /* ── 반응형 ── */
+    @media (max-width: 480px) {
+      header { padding: 14px 16px; }
+      main   { padding: 24px 14px 100px; }
+      .bubble-user, .bubble-system { max-width: 95%; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-icon">💊</div>
+  <div>
+    <div class="logo-text">의약품 복용 안내</div>
+    <div class="logo-sub">일반의약품 근거기반 QA 시스템</div>
+  </div>
+</header>
+
+<main>
+  <div class="intro-card">
+    <strong>복용 전 꼭 확인하세요.</strong><br>
+    약물명과 함께 궁금한 상황을 입력하면 첨부문서 기반으로 안내해드립니다.<br>
+    예) <em>"술 마시고 타이레놀 먹어도 돼?"</em> &nbsp;|&nbsp; <em>"임산부가 코트리나 먹어도 되나요?"</em>
+  </div>
+
+  <div id="chatArea"></div>
+</main>
+
+<!-- 입력창 (화면 하단 고정) -->
+<div style="position:fixed;bottom:0;left:0;right:0;background:#f4f7f4;padding:16px 20px;border-top:1px solid #e0e5e0;">
+  <div style="max-width:720px;margin:0 auto;">
+    <div class="input-wrap" style="margin-bottom:0;">
+      <textarea
+        id="questionInput"
+        placeholder="약물명과 함께 질문을 입력하세요..."
+        rows="1"
+        onInput="autoResize(this)"
+        onKeyDown="handleKey(event)"
+      ></textarea>
+      <button id="sendBtn" onclick="sendQuestion()">전송</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = 'http://localhost:8001';
+  let pendingQuestion = '';   // 후보 선택 대기 중인 원래 질문
+
+  // ── textarea 자동 높이 ──
+  function autoResize(el) {
+    el.style.height = '52px';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendQuestion();
+    }
+  }
+
+  // ── 질문 전송 ──
+  async function sendQuestion() {
+    const input = document.getElementById('questionInput');
+    const q = input.value.trim();
+    if (!q) return;
+
+    input.value = '';
+    input.style.height = '52px';
+    document.getElementById('sendBtn').disabled = true;
+
+    appendUserBubble(q);
+    pendingQuestion = q;
+
+    const loading = appendLoading();
+
+    try {
+      const res  = await fetch(`${API}/candidates`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: q }),
+      });
+      const data = await res.json();
+      removeLoading(loading);
+
+      if (data.candidates && data.candidates.length > 0) {
+        appendCandidates(data.candidates);
+      } else {
+        // 후보 없으면 바로 답변 생성
+        await fetchAnswer(q, null);
+      }
+    } catch (e) {
+      removeLoading(loading);
+      appendError('서버 연결에 실패했습니다. 서버가 실행 중인지 확인해주세요.');
+      document.getElementById('sendBtn').disabled = false;
+    }
+  }
+
+  // ── 약물명 선택 후 답변 요청 ──
+  async function selectDrug(drugName, btn) {
+    // 선택된 버튼 표시
+    document.querySelectorAll('.cand-btn').forEach(b => b.disabled = true);
+    btn.classList.add('selected');
+
+    const loading = appendLoading();
+
+    await fetchAnswer(pendingQuestion, drugName);
+    removeLoading(loading);
+  }
+
+  // ── /answer 호출 ──
+  async function fetchAnswer(question, drugName) {
+    try {
+      const res  = await fetch(`${API}/answer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, chosen_drug_name: drugName }),
+      });
+      const data = await res.json();
+      appendAnswer(data.answer);
+    } catch (e) {
+      appendError('답변 생성 중 오류가 발생했습니다.');
+    } finally {
+      document.getElementById('sendBtn').disabled = false;
+    }
+  }
+
+  // ── DOM 헬퍼 ──
+
+  function appendUserBubble(text) {
+    const wrap = el('div', 'bubble-wrap', {style:'align-items:flex-end'});
+    const label = el('div', 'bubble-label', {textContent:'나', style:'text-align:right'});
+    const bubble = el('div', 'bubble-user', {textContent: text});
+    wrap.append(label, bubble);
+    chat().appendChild(wrap);
+    scrollBottom();
+  }
+
+  function appendCandidates(candidates) {
+    const wrap   = el('div', 'bubble-wrap');
+    const label  = el('div', 'bubble-label', {textContent:'의약품 안내'});
+    const system = el('div', 'bubble-system');
+    const cWrap  = el('div', 'cand-wrap');
+    const cLabel = el('div', 'cand-label', {textContent:'해당하는 약물을 선택해주세요'});
+    const cList  = el('div', 'cand-list');
+
+    candidates.forEach(name => {
+      const btn = el('button', 'cand-btn', {textContent: name});
+      btn.onclick = () => selectDrug(name, btn);
+      cList.appendChild(btn);
+    });
+
+    cWrap.append(cLabel, cList);
+    system.appendChild(cWrap);
+    wrap.append(label, system);
+    chat().appendChild(wrap);
+    scrollBottom();
+  }
+
+  function appendAnswer(rawText) {
+    const wrap   = el('div', 'bubble-wrap');
+    const label  = el('div', 'bubble-label', {textContent:'의약품 안내'});
+    const system = el('div', 'bubble-system');
+    const card   = el('div', 'answer-card');
+
+    // 결론 / 이유 / 근거 파싱
+    const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
+    let conclusion = '', reason = '', cite = '';
+
+    lines.forEach(line => {
+      if (line.startsWith('결론:')) conclusion = line.replace('결론:', '').trim();
+      else if (line.startsWith('이유:')) reason = line.replace('이유:', '').trim();
+      else if (line.startsWith('근거:')) cite += (cite ? '\n' : '') + line.replace('근거:', '').trim();
+    });
+
+    // 결론 태그 색상 결정
+    let tagClass = 'tag-default', tagText = conclusion || '안내';
+    if (conclusion.includes('주의')) { tagClass = 'tag-caution'; }
+    else if (conclusion.includes('피해야') || conclusion.includes('금지') || conclusion.includes('안 됨')) { tagClass = 'tag-avoid'; }
+    else if (conclusion.includes('가능') || conclusion.includes('괜찮')) { tagClass = 'tag-ok'; }
+
+    if (conclusion) {
+      const tag = el('span', `answer-tag ${tagClass}`, {textContent: tagText});
+      card.appendChild(tag);
+    }
+
+    if (reason) {
+      const sec = el('div', 'answer-section');
+      sec.append(
+        el('div', 'answer-section-title', {textContent:'이유'}),
+        el('div', 'answer-section-body', {textContent: reason})
+      );
+      card.appendChild(sec);
+    }
+
+    if (cite) {
+      const sec = el('div', 'answer-section');
+      sec.append(
+        el('div', 'answer-section-title', {textContent:'근거'}),
+        el('div', 'answer-cite', {textContent: cite})
+      );
+      card.appendChild(sec);
+    }
+
+    // 파싱 실패 시 전체 텍스트 출력
+    if (!conclusion && !reason && !cite) {
+      card.appendChild(el('div', 'answer-section-body', {textContent: rawText}));
+    }
+
+    system.appendChild(card);
+    wrap.append(label, system);
+    chat().appendChild(wrap);
+    scrollBottom();
+  }
+
+  function appendLoading() {
+    const wrap = el('div', 'bubble-wrap');
+    const div  = el('div', 'loading');
+    div.innerHTML = `확인 중<div class="dots"><span></span><span></span><span></span></div>`;
+    wrap.appendChild(div);
+    chat().appendChild(wrap);
+    scrollBottom();
+    return wrap;
+  }
+
+  function removeLoading(wrap) { wrap?.remove(); }
+
+  function appendError(msg) {
+    const wrap = el('div', 'bubble-wrap');
+    wrap.appendChild(el('div', 'bubble-error', {textContent: msg}));
+    chat().appendChild(wrap);
+    scrollBottom();
+  }
+
+  function chat() { return document.getElementById('chatArea'); }
+  function scrollBottom() { window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'}); }
+
+  function el(tag, cls, props = {}) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    Object.entries(props).forEach(([k, v]) => {
+      if (k === 'textContent') e.textContent = v;
+      else if (k === 'style') e.style.cssText = v;
+      else e[k] = v;
+    });
+    return e;
+  }
+</script>
+
+</body>
+</html>

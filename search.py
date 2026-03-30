@@ -42,7 +42,7 @@ def search_docs(
         k: int=3
 ):
     if chosen_drug_name:
-        retreiever = vectorstore.as_retriever(
+        retriever = vectorstore.as_retriever(
             search_kwargs={"k" : k, "filter" : {"drug_name" : chosen_drug_name}}
         )
     else :
